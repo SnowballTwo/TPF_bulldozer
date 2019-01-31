@@ -1,0 +1,63 @@
+function data()
+    return {
+        type = "ASSET_DEFAULT",
+        buildMode = "MULTI",
+        categories = {
+            "misc"
+        },
+        availability = {
+            yearFrom = 244,
+            yearTo = 245
+        },
+        description = {
+            name = _("patch_title"),
+            description = _("patch_description")
+        },
+        order = 197720202,
+        skipCollision = true,
+        autoRemovable = true,
+        updateFn = function(params)
+            local result = {
+                models = {},
+                cost = 10,
+                bulldozeCost = 10,
+                maintenanceCost = 0
+            }
+            local points = params.points
+            local level = params.level
+            if not level then
+                level = "EQUAL"
+            end
+            --if not outline or not ground or not center then
+            result.models[#result.models + 1] = {
+                id = "asset/rock_1.mdl",
+                transf = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1}
+            }
+            --end
+
+            --we need this to prevent the game engine from cutting out ground face
+            --[[for i = 1, #points do
+			result.models[#result.models+1] =
+			{					
+				id = "asset/snowball_farmer_suspensor.mdl",
+				transf = { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, outline[i][1], outline[i][2], outline[i][3] - 0.5, 1 }
+			}
+        end]]
+        
+            local height = game.interface.getHeight(points[1])
+
+            for i = 1, #points do
+                points[i][3] = height
+            end
+
+            result.terrainAlignmentLists = { {
+                type = level,               -- accepted values: "EQUAL", "LESS" and "GREATER"
+                faces = { points }, -- a list of polygons
+                slopeLow = 1,
+                slopeHigh = 1
+              } }
+
+            return result
+        end
+    }
+end

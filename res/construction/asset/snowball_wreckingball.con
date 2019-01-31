@@ -1,0 +1,68 @@
+local bulldozer = require "snowball_bulldozer"
+
+local modes = { "plan", "bulldoze", "reset" }
+local types = { nil, "ASSET_GROUP", "CONSTRUCTION" }
+
+function data()
+    return {
+        type = "ASSET_DEFAULT",
+        buildMode = "MULTI",
+        categories = {"misc"},
+        availability = {
+            yearFrom = 0,
+            yearTo = 0
+        },
+        description = {
+            name = _("snowball_wreckingball_title"),
+            description = _("snowball_wreckingball_description")
+        },
+        order = 197720601,
+        skipCollision = true,
+        autoRemovable = true,
+        params = {
+            {
+                key = "snowball_bulldozer_mode",
+                name = _("snowball_bulldozer_mode"),
+                values = {_("snowball_bulldozer_plan"), _("snowball_bulldozer_bulldoze"), _("snowball_bulldozer_reset")},
+                defaultIndex = 0
+            },
+            {
+                key = "snowball_bulldozer_type",
+                name = _("snowball_bulldozer_type"),
+                values = {_("snowball_bulldozer_all"), _("snowball_bulldozer_assets"), _("snowball_bulldozer_constructions")},
+                defaultIndex = 0
+            }
+        },
+        updateFn = function(params)
+            local result = {
+                models = {},
+                cost = 10,
+                bulldozeCost = 10,
+                maintenanceCost = 0
+            }
+            local mode = modes[params.snowball_bulldozer_mode + 1]            
+			local type = types[params.snowball_bulldozer_type + 1]
+
+            result.models = {}
+
+            result.terrainAlignmentLists = {
+                {
+                    type = "EQUAL",
+                    faces = {}
+                }
+            }
+
+            if mode == "plan" then
+               bulldozer.plan(result, {1.0, 0.1, 0.0, 1.0})
+            elseif mode == "reset" then
+                bulldozer.reset(result)
+            elseif mode == "bulldoze" then
+                bulldozer.bulldoze(result, type)
+            else
+                error("Bulldozer: invalid operation ", mode)
+            end
+
+            return result
+        end
+    }
+end

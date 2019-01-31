@@ -1,0 +1,68 @@
+local bulldozer = require "snowball_bulldozer"
+
+local modes = { "plan", "level", "reset" }
+local levelings = { "EQUAL", "LESS", "GREATER" }
+
+function data()
+    return {
+        type = "ASSET_DEFAULT",
+        buildMode = "MULTI",
+        categories = {"misc"},
+        availability = {
+            yearFrom = 0,
+            yearTo = 0
+        },
+        description = {
+            name = _("snowball_bulldozer_title"),
+            description = _("snowball_bulldozer_description")
+        },
+        order = 197720601,
+        skipCollision = true,
+        autoRemovable = true,
+        params = {
+            {
+                key = "snowball_bulldozer_mode",
+                name = _("snowball_bulldozer_mode"),
+                values = {_("snowball_bulldozer_plan"), _("snowball_bulldozer_level"), _("snowball_bulldozer_reset")},
+                defaultIndex = 0
+            } ,
+            {
+                key = "snowball_bulldozer_leveling",
+                name = _("snowball_bulldozer_leveling"),
+                values = {_("snowball_bulldozer_equal"), _("snowball_bulldozer_less"), _("snowball_bulldozer_greater")},
+                defaultIndex = 0
+            }                 
+        },
+        updateFn = function(params)
+            local result = {
+                models = {},
+                cost = 10,
+                bulldozeCost = 10,
+                maintenanceCost = 0
+            }
+            local mode = modes[params.snowball_bulldozer_mode + 1]            
+            local type = levelings[params.snowball_bulldozer_leveling + 1]    
+            
+            result.models = {}
+
+            result.terrainAlignmentLists = {
+                {
+                    type = "EQUAL",
+                    faces = {}
+                }
+            }
+
+            if mode == "plan" then
+               bulldozer.plan(result, {1.0, 0.56, 0.0, 1.0})
+            elseif mode == "reset" then
+                bulldozer.reset(result)
+            elseif mode == "level" then
+                bulldozer.level(result, type)
+            else
+                error("Bulldozer: invalid operation ", mode)
+            end
+
+            return result
+        end
+    }
+end
